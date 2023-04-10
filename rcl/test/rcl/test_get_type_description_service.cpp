@@ -242,7 +242,7 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION), test_ser
   });
   rosidl_runtime_c__String__assign(&client_request.type_hash, type_hash_str);
   rosidl_runtime_c__String__assign(&client_request.type_name, GET_TYPE_DESCRIPTION_SRV_TYPE_NAME);
-  client_request.include_type_sources = true;
+  client_request.include_type_sources = false;
 
   // Send the request.
   int64_t sequence_number;
@@ -264,7 +264,7 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION), test_ser
   type_description_interfaces__srv__GetTypeDescription_Response__fini(&client_response);
 }
 
-/* Test calling ~/get_type_description service with invalid hash service. */
+/* Test calling ~/get_type_description service with invalid hash. */
 TEST_F(
   CLASSNAME(
     TestGetTypeDescSrvEnabledFixture,
@@ -294,7 +294,7 @@ TEST_F(
   // Fill the request.
   rosidl_runtime_c__String__assign(&client_request.type_hash, "foo");
   rosidl_runtime_c__String__assign(&client_request.type_name, "bar");
-  client_request.include_type_sources = true;
+  client_request.include_type_sources = false;
 
   // Send the request.
   int64_t sequence_number;
