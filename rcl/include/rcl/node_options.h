@@ -56,6 +56,7 @@ typedef struct rcl_node_options_s
   rmw_qos_profile_t rosout_qos;
 
   /// Register the ~/get_type_description service. Defaults to false.
+  // Deprecated: use parameter "enable_type_description_service" in language clients instead.
   bool enable_type_description_service;
 } rcl_node_options_t;
 

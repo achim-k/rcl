@@ -52,6 +52,7 @@ typedef struct rcl_type_info_t
  * \return #RCL_RET_NODE_INVALID if the given `node` is invalid, or
  * \return #RCL_RET_ERROR if an unspecified error occurs.
  */
+RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t rcl_node_type_cache_init(rcl_node_t * node);
 
@@ -95,6 +96,7 @@ bool rcl_node_type_cache_is_valid(const rcl_node_t * node);
  * \return #RCL_RET_NODE_INVALID if the given `node` is invalid, or
  * \return #RCL_RET_ERROR if an unspecified error occurs.
  */
+RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t rcl_node_type_cache_fini(rcl_node_t * node);
 

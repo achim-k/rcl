@@ -36,6 +36,7 @@ extern "C"
 extern const char * const RCL_DISABLE_LOANED_MESSAGES_ENV_VAR;
 
 typedef struct rcl_node_impl_s rcl_node_impl_t;
+typedef struct rcl_service_s rcl_service_t;
 
 /// Structure which encapsulates a ROS Node.
 typedef struct rcl_node_s
@@ -599,6 +600,52 @@ rcl_ret_t rcl_node_type_description_service_init(rcl_node_t * node);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t rcl_node_type_description_service_fini(rcl_node_t * node);
+
+
+/// Returns a pointer to the node's ~/get_type_description service.
+/**
+ * On success, sets service_out to the initialized service.
+ * rcl_node_type_description_service_init must be called before this.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] node the handle to the node
+ * \return #RCL_RET_OK if valid service was returned successfully, or
+ * \return #RCL_RET_INVALID_ARGUMENT if any arguments are invalid, or
+ * \return #RCL_RET_NOT_INIT if the service hasn't yet been initialized, or
+ * \return #RCL_RET_ERROR if an unspecified error occurs.
+ */
+RCL_PUBLIC
+RCL_WARN_UNUSED
+rcl_ret_t rcl_node_get_type_description_service(
+  const rcl_node_t * node,
+  rcl_service_t ** service_out);
+
+
+/// Process a single pending request to the GetTypeDescription service.
+/**
+ * Should be registered as the callback for the type description service
+ * by any client instantiating that service.
+ * It is not intended to be called directly by users.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] node the handle to the node
+ */
+RCL_PUBLIC
+void rcl_node_type_description_service_on_new_request(rcl_node_t * node);
 
 #ifdef __cplusplus
 }
