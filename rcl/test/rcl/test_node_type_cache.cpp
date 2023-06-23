@@ -64,6 +64,8 @@ public:
       this->node_ptr, name, "", this->context_ptr,
       &node_options);
     ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+    ret = rcl_node_type_cache_init(node_ptr);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
   }
 
   void TearDown()
