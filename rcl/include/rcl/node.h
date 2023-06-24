@@ -33,6 +33,8 @@ extern "C"
 #include "rcl/types.h"
 #include "rcl/visibility_control.h"
 
+#include "type_description_interfaces/srv/get_type_description.h"
+
 extern const char * const RCL_DISABLE_LOANED_MESSAGES_ENV_VAR;
 
 typedef struct rcl_node_impl_s rcl_node_impl_t;
@@ -645,7 +647,11 @@ rcl_ret_t rcl_node_get_type_description_service(
  * \param[in] node the handle to the node
  */
 RCL_PUBLIC
-void rcl_node_type_description_service_on_new_request(rcl_node_t * node);
+void rcl_node_type_description_service_handle_request(
+  rcl_node_t * node,
+  rmw_request_id_t request_header,
+  const type_description_interfaces__srv__GetTypeDescription_Request * request,
+  type_description_interfaces__srv__GetTypeDescription_Response * response);
 
 #ifdef __cplusplus
 }
