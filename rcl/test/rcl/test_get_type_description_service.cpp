@@ -19,6 +19,7 @@
 #include "rcl/service.h"
 #include "rcl/rcl.h"
 
+#include "node_impl.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rosidl_runtime_c/string_functions.h"
 #include "type_description_interfaces/srv/get_type_description.h"
@@ -99,7 +100,7 @@ static bool service_exists(
   return type_name_found;
 }
 
-class CLASSNAME (TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION) : public ::testing::Test
+class CLASSNAME (TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION) : public ::testing::Test
 {
 public:
   rcl_context_t * context_ptr;
@@ -133,6 +134,8 @@ public:
     rcl_node_options_t node_options = rcl_node_get_default_options();
     ret = rcl_node_init(this->node_ptr, name, "", this->context_ptr, &node_options);
     ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+    ret = rcl_node_type_description_service_init(node_ptr);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
 
     const char * node_fqn = rcl_node_get_fully_qualified_name(this->node_ptr);
     snprintf(
@@ -153,37 +156,11 @@ public:
   }
 };
 
-class CLASSNAME (TestGetTypeDescSrvDisabledFixture,
-  RMW_IMPLEMENTATION) : public CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION) {
-  bool get_type_description_service_enabled() const override
-  {
-    return false;
-  }
-};
 
-/* Test service being enabled with node_options. */
-TEST_F(
-  CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION),
-  test_service_existence_node_options_default) {
-  EXPECT_TRUE(
-    service_exists(
-      this->node_ptr, this->get_type_description_service_name,
-      GET_TYPE_DESCRIPTION_SRV_TYPE_NAME));
-}
-
-/* Test service being disabled with node_options. */
-TEST_F(
-  CLASSNAME(TestGetTypeDescSrvDisabledFixture, RMW_IMPLEMENTATION),
-  test_service_existence_node_options_disabled) {
-  EXPECT_FALSE(
-    service_exists(
-      this->node_ptr, this->get_type_description_service_name,
-      GET_TYPE_DESCRIPTION_SRV_TYPE_NAME));
-}
 
 /* Test init and fini functions. */
 TEST_F(
-  CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION),
+  CLASSNAME(TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION),
   test_service_init_and_fini_functions) {
   EXPECT_TRUE(
     service_exists(
@@ -205,7 +182,7 @@ TEST_F(
 }
 
 /* Basic nominal test of the ~/get_type_description service. */
-TEST_F(CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION), test_service_nominal) {
+TEST_F(CLASSNAME(TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION), test_service_nominal) {
   rcl_ret_t ret;
   const rosidl_service_type_support_t * ts = ROSIDL_GET_SRV_TYPE_SUPPORT(
     type_description_interfaces, srv, GetTypeDescription);
@@ -248,6 +225,36 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION), test_ser
   type_description_interfaces__srv__GetTypeDescription_Request__fini(&client_request);
   ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
 
+  // This scope simulates handling request in a different context
+  {
+    auto service = &node_ptr->impl->get_type_description_service;
+    ASSERT_TRUE(wait_for_service_to_be_ready(service, context_ptr, 10, 100));
+
+    type_description_interfaces__srv__GetTypeDescription_Response service_response;
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      type_description_interfaces__srv__GetTypeDescription_Response__fini(&service_response);
+    });
+
+    type_description_interfaces__srv__GetTypeDescription_Request service_request;
+    type_description_interfaces__srv__GetTypeDescription_Request__init(&service_request);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      type_description_interfaces__srv__GetTypeDescription_Request__fini(&service_request);
+    });
+    rmw_service_info_t header;
+    ret = rcl_take_request_with_info(service, &header, &service_request);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+
+    rcl_node_type_description_service_handle_request(
+      node_ptr,
+      header.request_id,
+      &service_request,
+      &service_response);
+
+    ret = rcl_send_response(service, &header.request_id, &service_response);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+  }
+
+  ASSERT_TRUE(wait_for_client_to_be_ready(&client, context_ptr, 10, 100));
   // Initialize the response owned by the client and take the response.
   type_description_interfaces__srv__GetTypeDescription_Response client_response;
   type_description_interfaces__srv__GetTypeDescription_Response__init(&client_response);
@@ -265,7 +272,7 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvEnabledFixture, RMW_IMPLEMENTATION), test_ser
 /* Test calling ~/get_type_description service with invalid hash. */
 TEST_F(
   CLASSNAME(
-    TestGetTypeDescSrvEnabledFixture,
+    TestGetTypeDescSrvFixture,
     RMW_IMPLEMENTATION), test_service_invalid_hash) {
   rcl_ret_t ret;
   const rosidl_service_type_support_t * ts = ROSIDL_GET_SRV_TYPE_SUPPORT(
@@ -300,6 +307,36 @@ TEST_F(
   type_description_interfaces__srv__GetTypeDescription_Request__fini(&client_request);
   ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
 
+  // This scope simulates handling request in a different context
+  {
+    auto service = &node_ptr->impl->get_type_description_service;
+    ASSERT_TRUE(wait_for_service_to_be_ready(service, context_ptr, 10, 100));
+
+    type_description_interfaces__srv__GetTypeDescription_Response service_response;
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      type_description_interfaces__srv__GetTypeDescription_Response__fini(&service_response);
+    });
+
+    type_description_interfaces__srv__GetTypeDescription_Request service_request;
+    type_description_interfaces__srv__GetTypeDescription_Request__init(&service_request);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      type_description_interfaces__srv__GetTypeDescription_Request__fini(&service_request);
+    });
+    rmw_service_info_t header;
+    ret = rcl_take_request_with_info(service, &header, &service_request);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+
+    rcl_node_type_description_service_handle_request(
+      node_ptr,
+      header.request_id,
+      &service_request,
+      &service_response);
+
+    ret = rcl_send_response(service, &header.request_id, &service_response);
+    ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
+  }
+
+  ASSERT_TRUE(wait_for_client_to_be_ready(&client, context_ptr, 10, 100));
   // Initialize the response owned by the client and take the response.
   type_description_interfaces__srv__GetTypeDescription_Response client_response;
   type_description_interfaces__srv__GetTypeDescription_Response__init(&client_response);
