@@ -19,10 +19,11 @@
 #include "rcl/service.h"
 #include "rcl/rcl.h"
 
-#include "node_impl.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rosidl_runtime_c/string_functions.h"
 #include "type_description_interfaces/srv/get_type_description.h"
+
+#include "node_impl.h"  // NOLINT
 #include "wait_for_entity_helpers.hpp"
 
 #ifdef RMW_IMPLEMENTATION
@@ -157,7 +158,6 @@ public:
 };
 
 
-
 /* Test init and fini functions. */
 TEST_F(
   CLASSNAME(TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION),
@@ -231,13 +231,15 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION), test_service_no
     ASSERT_TRUE(wait_for_service_to_be_ready(service, context_ptr, 10, 100));
 
     type_description_interfaces__srv__GetTypeDescription_Response service_response;
-    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
       type_description_interfaces__srv__GetTypeDescription_Response__fini(&service_response);
     });
 
     type_description_interfaces__srv__GetTypeDescription_Request service_request;
     type_description_interfaces__srv__GetTypeDescription_Request__init(&service_request);
-    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
       type_description_interfaces__srv__GetTypeDescription_Request__fini(&service_request);
     });
     rmw_service_info_t header;
@@ -313,13 +315,15 @@ TEST_F(
     ASSERT_TRUE(wait_for_service_to_be_ready(service, context_ptr, 10, 100));
 
     type_description_interfaces__srv__GetTypeDescription_Response service_response;
-    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
       type_description_interfaces__srv__GetTypeDescription_Response__fini(&service_response);
     });
 
     type_description_interfaces__srv__GetTypeDescription_Request service_request;
     type_description_interfaces__srv__GetTypeDescription_Request__init(&service_request);
-    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
       type_description_interfaces__srv__GetTypeDescription_Request__fini(&service_request);
     });
     rmw_service_info_t header;
