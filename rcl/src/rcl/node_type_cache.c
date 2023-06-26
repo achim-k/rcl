@@ -182,7 +182,7 @@ rcl_ret_t rcl_node_type_cache_register_type(
     type_info_with_registrations.type_info.type_sources =
       rcl_convert_type_source_sequence_runtime_to_msg(type_description_sources);
     RCL_CHECK_FOR_NULL_WITH_MSG(
-      type_info_with_registrations.type_info.type_description,
+      type_info_with_registrations.type_info.type_sources,
       "converting type sources struct failed",
       type_description_interfaces__msg__TypeDescription__destroy(
         type_info_with_registrations.type_info.type_description);
