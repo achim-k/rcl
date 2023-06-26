@@ -554,12 +554,15 @@ rcl_get_disable_loaned_message(bool * disable_loaned_message);
 
 /// Initialize the node's ~/get_type_description service.
 /**
- * This function initializes the node's private ~/get_type_description service
+ * This function initializes the node's ~/get_type_description service
  * which can be used to retrieve information about types used by the node's
  * publishers, subscribers, services or actions.
  *
- * Note that this function will be called in `rcl_init_node` if the node option
- * `enable_type_description_service` is set to true.
+ * Note that this will not register any callback for the service, client-level code
+ * must register rcl_node_type_description_service_handle_request or a custom callback
+ * to handle incoming requests, via that client's executor/waitset capabilities.
+ *
+ * This will initialize the node's type cache, if it has not been initialized already.
  *
  * <hr>
  * Attribute          | Adherence
