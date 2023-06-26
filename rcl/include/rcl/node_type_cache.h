@@ -37,6 +37,8 @@ typedef struct rcl_type_info_t
 /**
  * This function initializes hash map of the node's type cache such that types
  * can be registered and retrieved.
+ * Note that to correctly capture all types used by a node, this needs to be called
+ * before any "builtin" publishers or services are created.
  *
  * <hr>
  * Attribute          | Adherence

@@ -618,7 +618,9 @@ rcl_ret_t rcl_node_type_description_service_fini(rcl_node_t * node);
  * Lock-Free          | Yes
  *
  * \param[in] node the handle to the node
+ * \param[out] service_out Handle to pointer that will be set
  * \return #RCL_RET_OK if valid service was returned successfully, or
+ * \return #RCL_RET_NODE_INVALID if node is invalid, or
  * \return #RCL_RET_INVALID_ARGUMENT if any arguments are invalid, or
  * \return #RCL_RET_NOT_INIT if the service hasn't yet been initialized, or
  * \return #RCL_RET_ERROR if an unspecified error occurs.
@@ -632,8 +634,7 @@ rcl_ret_t rcl_node_get_type_description_service(
 
 /// Process a single pending request to the GetTypeDescription service.
 /**
- * Should be registered as the callback for the type description service
- * by any client instantiating that service.
+ * This function may be called to handle incoming requests by any client starting the service.
  * It is not intended to be called directly by users.
  *
  * <hr>
@@ -645,6 +646,10 @@ rcl_ret_t rcl_node_get_type_description_service(
  * Lock-Free          | Yes
  *
  * \param[in] node the handle to the node
+ * \param[in] request_header ID of the incoming request
+ * \param[in] request Request that came in to the service
+ * \param[out] response Allocated, uninitialized response to the request
+ * \return void
  */
 RCL_PUBLIC
 void rcl_node_type_description_service_handle_request(

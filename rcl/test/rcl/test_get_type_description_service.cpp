@@ -105,7 +105,6 @@ public:
   rcl_context_t * context_ptr;
   rcl_node_t * node_ptr;
   char get_type_description_service_name[256];
-  bool enable_get_type_description_service;
 
   virtual bool get_type_description_service_enabled() const
   {
@@ -132,7 +131,6 @@ public:
     *this->node_ptr = rcl_get_zero_initialized_node();
     const char * name = "test_service_node";
     rcl_node_options_t node_options = rcl_node_get_default_options();
-    node_options.enable_type_description_service = get_type_description_service_enabled();
     ret = rcl_node_init(this->node_ptr, name, "", this->context_ptr, &node_options);
     ASSERT_EQ(RCL_RET_OK, ret) << rcl_get_error_string().str;
 

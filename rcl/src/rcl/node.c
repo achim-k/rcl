@@ -551,6 +551,73 @@ rcl_get_disable_loaned_message(bool * disable_loaned_message)
   return RCL_RET_OK;
 }
 
+void rcl_node_type_description_service_handle_request(
+  rcl_node_t * node,
+  rmw_request_id_t request_header,
+  const type_description_interfaces__srv__GetTypeDescription_Request * request,
+  type_description_interfaces__srv__GetTypeDescription_Response * response)
+{
+  (void)request_header;
+  rcl_type_info_t type_info;
+  RCL_CHECK_FOR_NULL_WITH_MSG(node, "invalid node handle", return;);
+  RCL_CHECK_FOR_NULL_WITH_MSG(node->impl, "invalid node", return;);
+
+  if (!type_description_interfaces__srv__GetTypeDescription_Response__init(response)) {
+    RCUTILS_LOG_ERROR_NAMED(
+      ROS_PACKAGE_NAME,
+      "Failed to initialize service response.");
+    return;
+  }
+
+  rosidl_type_hash_t type_hash;
+  if (RCUTILS_RET_OK !=
+    rosidl_parse_type_hash_string(request->type_hash.data, &type_hash))
+  {
+    RCUTILS_LOG_ERROR_NAMED(
+      ROS_PACKAGE_NAME, "Failed to parse type hash '%s'",
+      request->type_hash.data);
+    response->successful = false;
+    rosidl_runtime_c__String__assign(
+      &response->failure_reason,
+      "Failed to parse type hash");
+    return;
+  }
+
+  if (RCUTILS_RET_OK !=
+    rcl_node_type_cache_get_type_info(node, &type_hash, &type_info))
+  {
+    response->successful = false;
+    rosidl_runtime_c__String__assign(
+      &response->failure_reason,
+      "Type not currently in use by this node");
+    return;
+  }
+
+  if (!type_description_interfaces__msg__TypeDescription__copy(
+      type_info.type_description, &response->type_description))
+  {
+    response->successful = false;
+    rosidl_runtime_c__String__assign(
+      &response->failure_reason,
+      "Failed to populate TypeDescription to response.");
+    return;
+  }
+
+  if (request->include_type_sources) {
+    if (!type_description_interfaces__msg__TypeSource__Sequence__copy(
+        type_info.type_sources, &response->type_sources))
+    {
+      response->successful = false;
+      rosidl_runtime_c__String__assign(
+        &response->failure_reason,
+        "Failed to populate TypeSource_Sequence to response.");
+      return;
+    }
+  }
+
+  response->successful = true;
+}
+
 rcl_ret_t rcl_node_type_description_service_init(rcl_node_t * node)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(node, RCL_RET_INVALID_ARGUMENT);
@@ -629,73 +696,6 @@ rcl_ret_t rcl_node_get_type_description_service(
 
   *service_out = &node->impl->get_type_description_service;
   return RCL_RET_OK;
-}
-
-void rcl_node_type_description_service_handle_request(
-  rcl_node_t * node,
-  rmw_request_id_t request_header,
-  const type_description_interfaces__srv__GetTypeDescription_Request * request,
-  type_description_interfaces__srv__GetTypeDescription_Response * response)
-{
-  (void)request_header;
-  rcl_type_info_t type_info;
-  RCL_CHECK_FOR_NULL_WITH_MSG(node, "invalid node handle", return;);
-  RCL_CHECK_FOR_NULL_WITH_MSG(node->impl, "invalid node", return;);
-
-  if (!type_description_interfaces__srv__GetTypeDescription_Response__init(response)) {
-    RCUTILS_LOG_ERROR_NAMED(
-      ROS_PACKAGE_NAME,
-      "Failed to initialize service response.");
-    return;
-  }
-
-  rosidl_type_hash_t type_hash;
-  if (RCUTILS_RET_OK !=
-    rosidl_parse_type_hash_string(request->type_hash.data, &type_hash))
-  {
-    RCUTILS_LOG_ERROR_NAMED(
-      ROS_PACKAGE_NAME, "Failed to parse type hash '%s'",
-      request->type_hash.data);
-    response->successful = false;
-    rosidl_runtime_c__String__assign(
-      &response->failure_reason,
-      "Failed to parse type hash");
-    return;
-  }
-
-  if (RCUTILS_RET_OK !=
-    rcl_node_type_cache_get_type_info(node, &type_hash, &type_info))
-  {
-    response->successful = false;
-    rosidl_runtime_c__String__assign(
-      &response->failure_reason,
-      "Type not currently in use by this node");
-    return;
-  }
-
-  if (!type_description_interfaces__msg__TypeDescription__copy(
-    type_info.type_description, &response->type_description))
-  {
-    response->successful = false;
-    rosidl_runtime_c__String__assign(
-      &response->failure_reason,
-      "Failed to populate TypeDescription to response.");
-    return;
-  }
-
-  if (request->include_type_sources) {
-    if (!type_description_interfaces__msg__TypeSource__Sequence__copy(
-      type_info.type_sources, &response->type_sources))
-    {
-      response->successful = false;
-      rosidl_runtime_c__String__assign(
-        &response->failure_reason,
-        "Failed to populate TypeSource_Sequence to response.");
-      return;
-    }
-  }
-
-  response->successful = true;
 }
 
 #ifdef __cplusplus

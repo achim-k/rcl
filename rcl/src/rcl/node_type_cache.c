@@ -205,17 +205,6 @@ rcl_ret_t rcl_node_type_cache_register_type(
     return RCL_RET_ERROR;
   }
 
-  // char * hash_str = NULL;
-  // rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  // rcutils_ret_t hash_ret = rosidl_stringify_type_hash(type_hash, allocator, &hash_str);
-  // if (hash_ret == RCUTILS_RET_OK) {
-    // RCUTILS_LOG_WARN("Registered %s: %s.\n",
-    //   type_description->type_description.type_name.data, hash_str);
-  // } else {
-  //   assert(false);
-  // }
-  // allocator.deallocate(hash_str, allocator.state);
-
   return RCL_RET_OK;
 }
 
@@ -228,10 +217,6 @@ rcl_ret_t rcl_node_type_cache_unregister_type(
   RCL_CHECK_ARGUMENT_FOR_NULL(node->impl, RCL_RET_NODE_INVALID);
   RCL_CHECK_ARGUMENT_FOR_NULL(type_hash, RCL_RET_INVALID_ARGUMENT);
 
-  // char * hash_str = NULL;
-  // rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  // rcutils_ret_t rcutils_ret = rosidl_stringify_type_hash(type_hash, allocator, &hash_str);
-
   if (RCUTILS_RET_OK !=
     rcutils_hash_map_get(
       &node->impl->registered_types_by_type_hash,
@@ -239,12 +224,6 @@ rcl_ret_t rcl_node_type_cache_unregister_type(
   {
     RCL_SET_ERROR_MSG("Failed to unregister hash");
     return RCL_RET_ERROR;
-    // if (rcutils_ret == RCUTILS_RET_OK) {
-    //   RCUTILS_LOG_ERROR("Type not registered with type cache %s.", hash_str);
-    // } else {
-    //   RCL_SET_ERROR_MSG("Type not registered with type cache - type hash failed to print.");
-    // }
-    // return RCL_RET_INVALID_ARGUMENT;
   }
 
   if (--type_info.num_registrations > 0) {
@@ -271,9 +250,6 @@ rcl_ret_t rcl_node_type_cache_unregister_type(
     type_description_interfaces__msg__TypeSource__Sequence__destroy(
       type_info.type_info.type_sources);
   }
-
-  // RCUTILS_LOG_WARN("UNREgistered %s.", hash_str);
-  // allocator.deallocate(hash_str, allocator.state);
 
   return RCL_RET_OK;
 }
