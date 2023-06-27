@@ -657,7 +657,7 @@ rcl_ret_t rcl_node_get_type_description_service(
 RCL_PUBLIC
 void rcl_node_type_description_service_handle_request(
   rcl_node_t * node,
-  rmw_request_id_t request_header,
+  const rmw_request_id_t * request_header,
   const type_description_interfaces__srv__GetTypeDescription_Request * request,
   type_description_interfaces__srv__GetTypeDescription_Response * response);
 

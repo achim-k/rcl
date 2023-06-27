@@ -222,7 +222,7 @@ rcl_ret_t rcl_node_type_cache_unregister_type(
       &node->impl->registered_types_by_type_hash,
       type_hash, &type_info))
   {
-    RCL_SET_ERROR_MSG("Failed to unregister hash");
+    RCL_SET_ERROR_MSG("Failed to unregister type, hash not present in map.");
     return RCL_RET_ERROR;
   }
 

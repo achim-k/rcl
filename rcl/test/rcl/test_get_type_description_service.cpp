@@ -248,7 +248,7 @@ TEST_F(CLASSNAME(TestGetTypeDescSrvFixture, RMW_IMPLEMENTATION), test_service_no
 
     rcl_node_type_description_service_handle_request(
       node_ptr,
-      header.request_id,
+      &header.request_id,
       &service_request,
       &service_response);
 
@@ -332,7 +332,7 @@ TEST_F(
 
     rcl_node_type_description_service_handle_request(
       node_ptr,
-      header.request_id,
+      &header.request_id,
       &service_request,
       &service_response);
 
